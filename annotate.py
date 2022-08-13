@@ -287,7 +287,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # For debugging
-    args.path = "D:/ML Projects/Datasets/Hard_faces_dataset"
+    args.path = "D:/ML Projects/Datasets/Faces_dataset"
 
     # Creating/Reading the XMl file where I'll save the annotations
     if not args.xml:
