@@ -54,7 +54,7 @@ Let's suppose you are annotating the left eye:
 
 - `<z>`/`<x>`: Previous/next face part
 - `<a>`/`<s>`: Previous/next face
-- `<space>`: If you press it after clicking some points, it will generate the corresponding keypoints for the current face part.
+- `<space>`: If you press it after clicking some points, it will generate the corresponding keypoints for the current face part. Every time you press `<space>` the program will jump onto the next part.
 - `<f>`: Set curve fitting on/off.
 - `<m>`: Change annotation mode between:
   - Curve fitting: fit a polynomial regression model to the set of points you clicked for the current face part.
