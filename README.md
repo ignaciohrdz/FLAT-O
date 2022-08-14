@@ -20,7 +20,28 @@ Here is the template for annotating the 68 keypoints of a face:
 
 ![Annotation of 68 facial landmarks](docs/68_landmarks.jpg)
 
-### ⚠ How to annotate eyes and lips
+### How to annotate
+
+📦 You will need the following packages:
+
+- OpenCV
+- Numpy
+- Pandas
+- Scipy
+
+Once you have them installed, you just need to run this command:
+
+`python annotate.py -i path\to\your\images -x your\xml\folder`
+
+📂 Make sure that all your images are in the same folder (`path\to\your\images`). By default, the program will split your data into training and test (10%). If you add the argument `--no-splits` it will only create one XML. The argument `-t` adjusts the test set size. This example sets the test set size to the 20%:
+
+`python annotate.py -i path\to\your\images -x your\xml\folder -t 20`
+
+Finally, you can change the display size with the argument `-d`. This example scales the images so that the largest dimension is 512 pixels long (but it won't affect the original images):
+
+`python annotate.py -i path\to\your\images -x your\xml\folder -t 20 -d 512`
+
+#### ⚠ How to annotate eyes and lips
 
 Eyes and lips are the only features that are closed shapes, and that would break the method I'm using for automatically spacing the keypoints. For that reason, I have separated the annotation of eyes and lips in many parts:
 
