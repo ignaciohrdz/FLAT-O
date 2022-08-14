@@ -17,14 +17,14 @@ Here is the template for annotating 68 keypoints of a face:
 
 ![Annotation of 68 facial landmarks](docs/68_landmarks.jpg)
 
-### How to annotate eyes and lips 👁👄
+### How to annotate eyes and lips ⚠
 
 Eyes and lips are the only features that are closed shapes, and that would break the method I'm using for automatically spacing the keypoints. For that reason, I have separated the annotation of eyes and lips in many parts:
 
-- Eyes (left and right)
+- 👁 Eyes (left and right)
   - Upper eyelid: 37 to 40 and 43 to 46
   - Lower eyelid: [40, 41, 42, 37] and [46, 47, 48, 43]
-- Mouth
+- 👄 Mouth
   - Outer
     - Upper lip: 49 to 55
     - Lower lip: [55, 56, 57, 58, 59, 60, 49]
