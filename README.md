@@ -62,7 +62,7 @@ Eyes and lips are the only features that are closed shapes, and that would break
 
 This means that, in order to annotate the lower eyelids and lips properly, you will have to mark the edge points (i.e. 37, 40, 43, 46, 49, 55, 61, 65) twice.
 
-#### Example
+##### Example
 
 Let's suppose you are annotating the left eye:
 
