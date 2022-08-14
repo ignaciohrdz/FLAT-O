@@ -137,13 +137,12 @@ def render_image(input_image, font=cv2.FONT_HERSHEY_SIMPLEX):
     global face_part_keys, current_part, current_annotations, current_face, current_face_id
     global draw_mode, fit_curve
 
-    # Adding a black area under the image where we will print info
+    # Adding a black area to the right side or the bottom of the image to show some info
     h, w = input_image.shape[:2]
-    black_frame = np.zeros((200, input_image.shape[1], 3), dtype=np.uint8)
-    # TODO: Stack the info to the left side of the image, not to the bottom
-    input_image = np.vstack([input_image, black_frame])
-    x = int(0.05 * w)
-    y = int(1.10 * h)
+    black_frame = np.zeros((input_image.shape[0], 500, 3), dtype=np.uint8)
+    input_image = np.hstack([input_image, black_frame])
+    x = int(1.10 * w)
+    y = int(0.05 * h)
 
     # Showing the current settings
     m = "Freehand" if draw_mode else "Polyline"
@@ -162,6 +161,10 @@ def render_image(input_image, font=cv2.FONT_HERSHEY_SIMPLEX):
     # Drawing the currently selected points
     for i, x_i in enumerate(current_part_points_x):
         cv2.circle(input_image, (x_i, current_part_points_y[i]), 3, (255, 255, 0), -1)
+        if i > 0:
+            cv2.line(input_image, (current_part_points_x[i-1], current_part_points_y[i-1]),
+                     (current_part_points_x[i], current_part_points_y[i]),
+                     (255, 255, 0), 1)
 
     # Drawing the bounding box of the face (from the landmarks)
     for f_id, f_box in current_face.items():
@@ -180,13 +183,11 @@ def mouse_click(event, x, y, flags, param):
     y = min(max(y, 0), param[0])
 
     if event == cv2.EVENT_LBUTTONDOWN:
-        # print("Button down")
         if draw_mode:
             hold_click = True
         current_part_points_x.append(x)
         current_part_points_y.append(y)
     elif event == cv2.EVENT_LBUTTONUP and draw_mode:
-        # print("Button release")
         hold_click = False
 
         process_selected_points()
@@ -195,7 +196,6 @@ def mouse_click(event, x, y, flags, param):
         change_face_part(1)
 
     elif hold_click and draw_mode:
-        # print("Button dragging")
         current_part_points_x.append(x)
         current_part_points_y.append(y)
     else:
@@ -348,8 +348,7 @@ if __name__ == "__main__":
 
     # Main program
     exit_program = False
-    all_images = sorted(os.listdir(args.img_path))
-    for f in all_images:
+    for f in sorted(list(dataset_info.index)):
 
         # Check that it has not been already included in the XML
         # This is useful when we split annotation into several runs
@@ -384,11 +383,11 @@ if __name__ == "__main__":
                 if k == ord("x"):  # next part
                     change_face_part(1)
 
-                if k == ord("u"):  # undo
+                if k == ord("u"):  # undo current part
                     current_annotations[current_face_id][face_part_keys[current_part]] = []
                     current_part_points_x = []
                     current_part_points_y = []
-                if k == ord("r"):  # reset
+                if k == ord("r"):  # reset the entire face
                     current_annotations[current_face_id] = {k: [] for k in face_part_keys}
                     current_part = 0
                     current_part_points_x = []
@@ -426,6 +425,7 @@ if __name__ == "__main__":
                     xml_str = minidom.parseString(ET.tostring(cleaned_xml)).toprettyxml()
                     xml_file.write(xml_str)
 
+            current_part = 0
             current_part_points_x = []
             current_part_points_y = []
             current_annotations = {0: {k: [] for k in face_part_keys}}
