@@ -1,7 +1,7 @@
 # FLAT-O
 Facial Landmark Annotation Tool with OpenCV
 
-## Features 🎯
+## 🎯 Features
 
 - Simple OpenCV GUI for **68-keypoint** facial landmark annotation.
 - Annotate **more than one face per image**.
@@ -11,13 +11,13 @@ Facial Landmark Annotation Tool with OpenCV
     2. **Pick _N_ equidistant points** along the path defined by the points you selected.
 - Export the annotations in a single XML file, following the [Dlib's example XML file](https://github.com/davisking/dlib/blob/master/examples/faces/training_with_face_landmarks.xml).
 
-### 68 facial landmark annotation ✏
+### ✏ 68 facial landmark annotation
 
 Here is the template for annotating 68 keypoints of a face:
 
 ![Annotation of 68 facial landmarks](docs/68_landmarks.jpg)
 
-### How to annotate eyes and lips ⚠
+### ⚠ How to annotate eyes and lips
 
 Eyes and lips are the only features that are closed shapes, and that would break the method I'm using for automatically spacing the keypoints. For that reason, I have separated the annotation of eyes and lips in many parts:
 
@@ -38,7 +38,7 @@ This means that, in order to annotate the lower eyelids and lips properly, you w
 2. Press `<space>` and the final keypoints will be generated.
 3. Move onto the next feature (lower eyelid) and mark the keypoints 40, 41, 42 and 37. However, the keypoints 37 and 40 won't be overwritten because they were already saved in the previous part.
 
-## Keyboard controls
+## ⌨ Keyboard controls
 
 - `<z>`/`<x>`: Previous/next face part
 - `<a>`/`<s>`: Previous/next face
