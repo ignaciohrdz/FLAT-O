@@ -140,6 +140,7 @@ def render_image(input_image, font=cv2.FONT_HERSHEY_SIMPLEX):
     # Adding a black area under the image where we will print info
     h, w = input_image.shape[:2]
     black_frame = np.zeros((200, input_image.shape[1], 3), dtype=np.uint8)
+    # TODO: Stack the info to the left side of the image, not to the bottom
     input_image = np.vstack([input_image, black_frame])
     x = int(0.05 * w)
     y = int(1.10 * h)
