@@ -20,7 +20,7 @@ Here is the template for annotating the 68 keypoints of a face:
 
 ![Annotation of 68 facial landmarks](docs/68_landmarks.jpg)
 
-### How to annotate
+### How to annotate with FLAT-O
 
 📦 You will need the following packages:
 
