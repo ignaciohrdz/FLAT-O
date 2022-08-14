@@ -25,9 +25,13 @@ Here is the template for annotating the 68 keypoints of a face:
 
 Eyes and lips are the only features that are closed shapes, and that would break the method I'm using for automatically spacing the keypoints. For that reason, I have separated the annotation of eyes and lips in many parts:
 
-- 👁 Eyes (left and right)
-  - Upper eyelid: 37 to 40 and 43 to 46
-  - Lower eyelid: [40, 41, 42, 37] and [46, 47, 48, 43]
+- 👁 Eyes
+  - Upper eyelid:
+    - Left: 37 to 40
+    - Right: 43 to 46
+  - Lower eyelid:
+    - Left: [40, 41, 42, 37]
+    - Right: [46, 47, 48, 43]
 - 👄 Mouth
   - Outer
     - Upper lip: 49 to 55
@@ -36,7 +40,7 @@ Eyes and lips are the only features that are closed shapes, and that would break
     - Upper lip: 61 to 65
     - Lower lip: [65, 66, 67, 68, 61]
 
-This means that, in order to annotate the lower eyelids and lips properly, you will have to mark the edge points [37, 40, 43, 46, 49, 55, 61, 65] twice.
+This means that, in order to annotate the lower eyelids and lips properly, you will have to mark the edge points (i.e. 37, 40, 43, 46, 49, 55, 61, 65) twice.
 
 #### Example
 
