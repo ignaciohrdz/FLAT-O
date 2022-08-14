@@ -61,3 +61,18 @@ Let's suppose you are annotating the left eye:
 - `<u>`: Undo annotation of the current face part
 - `<r>`: Reset the entire face (only applies to the face you are currently annotating)
 - `<q>`: Quit
+
+## Useful links
+
+Other annotation tools:
+
+- [Facial Landkmarks Annotation Tool (FLAT)](https://github.com/luigivieira/Facial-Landmarks-Annotation-Tool)
+- [imglab (dlib's annotation tool)](https://github.com/davisking/dlib/tree/master/tools/imglab)
+
+Learn about `dlib` here:
+
+- [Training a custom dlib shape predictor](https://pyimagesearch.com/2019/12/16/training-a-custom-dlib-shape-predictor/)
+- [Facial landmarks with dlib, OpenCV and Python](https://pyimagesearch.com/2017/04/03/facial-landmarks-dlib-opencv-python/)
+- [Training script example from dlib](http://dlib.net/train_shape_predictor.py.html)
+- [Facial Landmarks: Use Cases, Datasets, and a Quick Tutorial](https://datagen.tech/guides/face-recognition/facial-landmarks/)
+- [Face Landmark Detection using Dlib](https://debuggercafe.com/face-landmark-detection-using-dlib/)
