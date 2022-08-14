@@ -1,4 +1,4 @@
-# FLATO: Facial Landmark AnnoTation with OpenCV
+# FLATO: Facial Landmark Annotation Tool with OpenCV
 # Author: Ignacio Hernández Montilla
 # https://github.com/ignaciohrdz
 
