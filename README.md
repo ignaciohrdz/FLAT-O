@@ -1,5 +1,4 @@
-# FLAT-O
-#### Facial Landmark Annotation Tool with OpenCV
+# FLAT-O: Facial Landmark AnnoTation with OpenCV
 
 ![GUI screenshot](docs/screenshot.png)
 
