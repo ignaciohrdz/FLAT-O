@@ -9,9 +9,9 @@
 - Simple OpenCV GUI for **68-keypoint** facial landmark annotation.
 - Annotate **more than one face per image**.
 - For each feature (nose, eyes, eyebrows...) mark as many points as you like and the final **keypoints will be calculated automatically so that they are distributed evenly**. This means that you are not limited to a certain number of points per feature. You use as many as you need and the program will extract the correct number of keypoints for that feature.
-  - I have implemented two methods:
-    1. **Fit a curve to your selected points** and then pick _N_ points from that curve (according to the number of points of the current face part). The goal of this was to make softer curves.
-    2. **Pick _N_ equidistant points** along the path defined by the points you selected.
+    - I have implemented two methods:
+        1. **Fit a curve to your selected points** and then pick _N_ points from that curve (according to the number of points of the current face part). The goal of this was to make softer curves.
+        2. **Pick _N_ equidistant points** along the path defined by the points you selected.
 - Export the annotations in a single XML file, following the [dlib's example XML file](https://github.com/davisking/dlib/blob/master/examples/faces/training_with_face_landmarks.xml).
 
 ### ✏ 68 facial landmark annotation
@@ -31,34 +31,34 @@ Here is the template for annotating the 68 keypoints of a face:
 
 Once you have them installed, you just need to run this command:
 
-`python annotate.py -i path\to\your\images -x your\xml\folder`
+    python annotate.py -i path\to\your\images -x your\xml\folder
 
 📂 Make sure that all your images are in the same folder (`path\to\your\images`). By default, the program will split your data into training and test (10%). If you add the argument `--no-splits` it will only create one XML. The argument `-t` adjusts the test set size. This example sets the test set size to the 20%:
 
-`python annotate.py -i path\to\your\images -x your\xml\folder -t 20`
+    python annotate.py -i path\to\your\images -x your\xml\folder -t 20
 
 Finally, you can change the display size with the argument `-d`. This example scales the images so that the largest dimension is 512 pixels long (but it won't affect the original images):
 
-`python annotate.py -i path\to\your\images -x your\xml\folder -t 20 -d 512`
+    python annotate.py -i path\to\your\images -x your\xml\folder -t 20 -d 512
 
 #### ⚠ How to annotate eyes and lips
 
 Eyes and lips are the only features that are closed shapes, and that would break the method I'm using for automatically spacing the keypoints. For that reason, I have separated the annotation of eyes and lips in many parts:
 
 - 👁 Eyes
-  - Upper eyelid:
-    - Left: 37 to 40
-    - Right: 43 to 46
-  - Lower eyelid:
-    - Left: [40, 41, 42, 37]
-    - Right: [46, 47, 48, 43]
+    - Upper eyelid:
+        - Left: 37 to 40
+        - Right: 43 to 46
+    - Lower eyelid:
+        - Left: [40, 41, 42, 37]
+        - Right: [46, 47, 48, 43]
 - 👄 Mouth
-  - Outer
-    - Upper lip: 49 to 55
-    - Lower lip: [55, 56, 57, 58, 59, 60, 49]
-  - Inner
-    - Upper lip: 61 to 65
-    - Lower lip: [65, 66, 67, 68, 61]
+    - Outer
+        - Upper lip: 49 to 55
+        - Lower lip: [55, 56, 57, 58, 59, 60, 49]
+    - Inner
+        - Upper lip: 61 to 65
+        - Lower lip: [65, 66, 67, 68, 61]
 
 This means that, in order to annotate the lower eyelids and lips properly, you will have to mark the edge points (i.e. 37, 40, 43, 46, 49, 55, 61, 65) twice.
 
@@ -77,8 +77,8 @@ Let's suppose you are annotating the left eye:
 - `<space>`: If you press it after clicking some points, it will generate the corresponding keypoints for the current face part. Every time you press `<space>` the program will jump onto the next part.
 - `<f>`: Set curve fitting on/off.
 - `<m>`: Change annotation mode between:
-  - Curve fitting: fit a polynomial regression model to the set of points you clicked for the current face part.
-  - Polyline (i.e. generating equidistant points following the path created by the points you clicked).
+    - Curve fitting: fit a polynomial regression model to the set of points you clicked for the current face part.
+    - Polyline (i.e. generating equidistant points following the path created by the points you clicked).
 - `<u>`: Undo annotation of the current face part
 - `<r>`: Reset the entire face (only applies to the face you are currently annotating)
 - `<q>`: Quit
