@@ -35,5 +35,18 @@ Eyes and lips are the only features that are closed shapes, and that would break
 This means that, in order to annotate the lower eyelids and lips properly, you will have to mark the edge points [37, 40, 43, 46, 49, 55, 61, 65] twice. This is an example: let's suppose you are annotating the left eye:
 
 1. First, you mark the keypoints for the upper eyelid: 37, 38, 39 and 40.
-2. Press <space> and the final keypoints will be generated.
+2. Press `<space>` and the final keypoints will be generated.
 3. Move onto the next feature (lower eyelid) and mark the keypoints 40, 41, 42 and 37. However, the keypoints 37 and 40 won't be overwritten because they were already saved in the previous part.
+
+## Keyboard controls
+
+- `<z>`/`<x>`: Previous/next face part
+- `<a>`/`<s>`: Previous/next face
+- `<space>`: If you press it after clicking some points, it will generate the corresponding keypoints for the current face part.
+- `<f>`: Set curve fitting on/off.
+- `<m>`: Change annotation mode between:
+  - Curve fitting: fit a polynomial regression model to the set of points you clicked for the current face part.
+  - Polyline (i.e. generating equidistant points following the path created by the points you clicked).
+- `<u>`: Undo annotation of the current face part
+- `<r>`: Reset the entire face (only applies to the face you are currently annotating)
+- `<q>`: Quit
