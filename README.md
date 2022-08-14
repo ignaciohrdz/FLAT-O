@@ -1,23 +1,23 @@
 # FLAT-O
 Facial Landmark Annotation Tool with OpenCV
 
-## Features
+## Features 🎯
 
-- Simple OpenCV GUI for 68-keypoint facial landmark annotation.
-- Annotate more than one face per image.
+- Simple OpenCV GUI for **68-keypoint** facial landmark annotation.
+- Annotate **more than one face per image**.
 - For each feature (nose, eyes, eyebrows...) mark as many points as you like and the final **keypoints will be calculated automatically so that they are distributed evenly**. This means that you are not limited to a certain number of points per feature. You use as many as you need and the program will extract the correct number of keypoints for that feature.
-  - I have implemented two modes:
-    1. Fit a curve to your selected points and then pick _N_ points from that curve (according to the number of points of the current face part)
-    2. Pick _N_ equidistant points along the path defined by the points you selected.
+  - I have implemented two methods:
+    1. **Fit a curve to your selected points** and then pick _N_ points from that curve (according to the number of points of the current face part). The goal of this was to make softer curves.
+    2. **Pick _N_ equidistant points** along the path defined by the points you selected.
 - Export the annotations in a single XML file, following the [Dlib's example XML file](https://github.com/davisking/dlib/blob/master/examples/faces/training_with_face_landmarks.xml).
 
-### 68 facial landmark annotation
+### 68 facial landmark annotation ✏
 
 Here is the template for annotating 68 keypoints of a face:
 
 ![Annotation of 68 facial landmarks](docs/68_landmarks.jpg)
 
-### How to annotate eyes and lips
+### How to annotate eyes and lips 👁👄
 
 Eyes and lips are the only features that are closed shapes, and that would break the method I'm using for automatically spacing the keypoints. For that reason, I have separated the annotation of eyes and lips in many parts:
 

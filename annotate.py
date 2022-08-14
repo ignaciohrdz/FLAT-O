@@ -2,10 +2,14 @@
 # Author: Ignacio Hernández Montilla
 # https://github.com/ignaciohrdz
 
-import cv2
 import os
 import argparse
+import random
+random.seed(420)
+
+import cv2
 import numpy as np
+import pandas as pd
 from scipy.interpolate import interp1d
 
 from xml.dom import minidom
@@ -223,16 +227,16 @@ def check_face_is_complete():
     return not check
 
 
-def generate_xml():
+def generate_xml(split_type='training'):
     global args
 
     root = ET.Element("dataset")
     name_tag = ET.Element("name")
-    name_tag.text = os.path.basename(args.path)
+    name_tag.text = os.path.basename(args.img_path)
     root.append(name_tag)
 
     comment_tag = ET.Element("comment")
-    comment_tag.text = "This file contains the annotations of the images from " + args.path
+    comment_tag.text = "This file contains the annotations of the {} images from {}".format(split_type, args.img_path)
     root.append(comment_tag)
 
     images_tag = ET.Element("images")
@@ -244,16 +248,16 @@ def generate_xml():
 
 
 def check_image_is_annotated(fname):
-    global xml_tree
-    check_image = xml_tree.getroot().find(".//*[@file='{}']".format(fname))
-    return check_image is not None
+    global xml_trees
+    check_image = any([t.getroot().find(".//*[@file='{}']".format(fname)) is not None for _, t in xml_trees.items()])
+    return check_image
 
 
-def update_xml():
-    global xml_tree, current_face, current_annotations
+def update_xml(split_name='training'):
+    global xml_trees, current_face, current_annotations
     global current_image, current_image_size, ratio
 
-    images_tag = xml_tree.getroot().find("./images")
+    images_tag = xml_trees[split_name].getroot().find("./images")
 
     new_image_tag = ET.SubElement(images_tag, "image")
     new_image_tag.set("file", current_image)
@@ -281,41 +285,82 @@ def update_xml():
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--path', type=str, help="Path to the image folder")
-    parser.add_argument('-x', '--xml', type=str, help="Path to the XML file that will contain the annotations")
-    parser.add_argument('-s', '--size', type=int, default=768, help="Display size (longest image size)")
+    parser.add_argument('-i', '--img-path', type=str, help="Path to the image folder")
+    parser.add_argument('-x', '--xml-path', type=str, help="Path to the folder where XMLs are saved")
+    parser.add_argument('-d', '--display-size', type=int, default=896, help="Display size (largest image size)")
+    parser.add_argument('-t', '--test-pct', type=int, default=10, help="Percentage of images for the test set (0-100)")
+    parser.add_argument('--no-splits', action='store_true', help="Do not make train/test splits and make one single XML")
     args = parser.parse_args()
 
-    # For debugging
-    args.path = "D:/ML Projects/Datasets/Faces_dataset"
+    # This is for debugging on my machine. Comment these two lines before running on yours
+    args.img_path = "D:/ML Projects/Datasets/Faces_dataset"
+    args.xml_path = "data"
+    args.no_splits = True
 
-    # Creating/Reading the XMl file where I'll save the annotations
-    if not args.xml:
-        args.xml = "data/annotations.xml"
+    # Checking the XML paths
+    # Option 1: Specify a folder for the XMLs
+    if (args.xml_path is None) and args.no_splits:
+        path_xml = {'training': 'annotations.xml'}
+    elif (args.xml_path is not None) and os.path.isdir(args.xml_path) and args.no_splits:
+        path_xml = {'training': os.path.join(args.xml_path, 'annotations.xml')}
+    elif (args.xml_path is None) and not args.no_splits:
+        path_xml = {'training': 'annotations_train.xml',
+                    'test': 'annotations_test.xml'}
+    elif (args.xml_path is not None) and os.path.isdir(args.xml_path) and not args.no_splits:
+        path_xml = {'training': os.path.join(args.xml_path, 'annotations_train.xml'),
+                    'test': os.path.join(args.xml_path, 'annotations_test.xml')}
+    # Option 2: Specify the path of the XML file, not the folder
+    elif os.path.isfile(args.xml_path) and args.no_splits:
+        path_xml = {'training': args.xml_path}
+        args.xml_path = os.path.dirname(args.xml_path)
 
-    if not os.path.isfile(args.xml):
-        xml_tree = generate_xml()
-        with open(args.xml, "w") as xml_file:
-            # Source: https://stackoverflow.com/a/28814053/8591713
-            xml_str = minidom.parseString(ET.tostring(xml_tree.getroot())).toprettyxml()
-            xml_file.write(xml_str)
+    # Creating/reading the XMl file/s
+    xml_trees = {}
+    for split_name, xml_name in path_xml.items():
+        if not os.path.isfile(xml_name):
+            xml_trees[split_name] = generate_xml(split_type=split_name)
+            with open(xml_name, "w") as xml_file:
+                # Source: https://stackoverflow.com/a/28814053/8591713
+                xml_str = minidom.parseString(ET.tostring(xml_trees[split_name].getroot())).toprettyxml()
+                xml_file.write(xml_str)
+        else:
+            xml_trees[split_name] = ET.parse(xml_name)
+
+    # Splitting the data into training/validation and saving the split data in a CSV file
+    # If the file already exists, we don't have to create the splits again
+    if os.path.isfile(os.path.join(args.xml_path, "dataset_info.csv")):
+        dataset_info = pd.read_csv(os.path.join(args.xml_path, "dataset_info.csv"))
     else:
-        xml_tree = ET.parse(args.xml)
+        images = sorted(os.listdir(args.img_path))
+        dataset_info = pd.DataFrame({'image': images})
+        dataset_info['split'] = 'training'
+        if not args.no_splits and 0 < args.test_pct < 100:
+            n_test = int(len(images) * args.test_pct/100)
+            idxs = list(dataset_info.index)
+            random.shuffle(idxs)
+            train_idx = idxs[:-n_test]
+            test_idx = idxs[-n_test:]
+            dataset_info.loc[train_idx, 'split'] = 'training'
+            dataset_info.loc[test_idx, 'split'] = 'test'
+        dataset_info.to_csv(os.path.join(args.xml_path, "dataset_info.csv"), index=False)
+    dataset_info = dataset_info.set_index(['image'])
 
     # Main program
     exit_program = False
-    for f in sorted(os.listdir(args.path)):
+    all_images = sorted(os.listdir(args.img_path))
+    for f in all_images:
 
         # Check that it has not been already included in the XML
         # This is useful when we split annotation into several runs
         if not check_image_is_annotated(f):
 
             # Load the image
-            img = cv2.imread(os.path.join(args.path, f))
+            img = cv2.imread(os.path.join(args.img_path, f))
             current_image_size = list(img.shape[:2])
-            img, ratio = smart_resize(img, new_size=args.size)
+            img, ratio = smart_resize(img, new_size=args.display_size)
             current_show_size = list(img.shape[:2])
             current_image = f
+            image_split = dataset_info.loc[f, 'split']
 
             win_name = 'FLATO - Annotate facial landmarks'
             cv2.namedWindow(win_name)
@@ -371,11 +416,11 @@ if __name__ == "__main__":
             #   - https://www.geeksforgeeks.org/create-xml-documents-using-python/ (see option 2)
             #   - https://stackoverflow.com/a/49473666/8591713
             if not exit_program:
-                update_xml()
-                with open(args.xml, "w") as xml_file:
+                update_xml(image_split)
+                with open(path_xml[image_split], "w") as xml_file:
                     # If we annotate in several runs, doing toprettyxml() will add too many spaces
                     # In order to keep the file readable, I must remove indents, spaces and new lines
-                    xml_str = minidom.parseString(ET.tostring(xml_tree.getroot())).toprettyxml().replace("\n", "").replace("\t", "").replace("  ", "")
+                    xml_str = minidom.parseString(ET.tostring(xml_trees[image_split].getroot())).toprettyxml().replace("\n", "").replace("\t", "").replace("  ", "")
                     cleaned_xml = ET.fromstring(xml_str)
                     xml_str = minidom.parseString(ET.tostring(cleaned_xml)).toprettyxml()
                     xml_file.write(xml_str)
