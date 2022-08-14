@@ -1,5 +1,9 @@
 # FLAT-O
-Facial Landmark Annotation Tool with OpenCV
+#### Facial Landmark Annotation Tool with OpenCV
+
+![GUI screenshot](docs/screenshot.png)
+
+(Photo by Thgusstavo Santana from [Pexels](https://www.pexels.com/photo/man-with-cigarette-in-mouth-1933873/))
 
 ## 🎯 Features
 
@@ -9,11 +13,11 @@ Facial Landmark Annotation Tool with OpenCV
   - I have implemented two methods:
     1. **Fit a curve to your selected points** and then pick _N_ points from that curve (according to the number of points of the current face part). The goal of this was to make softer curves.
     2. **Pick _N_ equidistant points** along the path defined by the points you selected.
-- Export the annotations in a single XML file, following the [Dlib's example XML file](https://github.com/davisking/dlib/blob/master/examples/faces/training_with_face_landmarks.xml).
+- Export the annotations in a single XML file, following the [dlib's example XML file](https://github.com/davisking/dlib/blob/master/examples/faces/training_with_face_landmarks.xml).
 
 ### ✏ 68 facial landmark annotation
 
-Here is the template for annotating 68 keypoints of a face:
+Here is the template for annotating the 68 keypoints of a face:
 
 ![Annotation of 68 facial landmarks](docs/68_landmarks.jpg)
 

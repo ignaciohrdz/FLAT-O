@@ -293,9 +293,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # This is for debugging on my machine. Comment these two lines before running on yours
-    args.img_path = "D:/ML Projects/Datasets/Faces_dataset"
-    args.xml_path = "data"
-    args.no_splits = True
+    # args.img_path = "D:/ML Projects/Datasets/Faces_dataset"
+    # args.xml_path = "data"
+    # args.no_splits = True
 
     # Checking the XML paths
     # Option 1: Specify a folder for the XMLs
