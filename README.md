@@ -2,7 +2,7 @@
 
 ![GUI screenshot](docs/screenshot.png)
 
-(Photo by Thgusstavo Santana from [Pexels](https://www.pexels.com/photo/man-with-cigarette-in-mouth-1933873/))
+_(Photo by Thgusstavo Santana from [Pexels](https://www.pexels.com/photo/man-with-cigarette-in-mouth-1933873/))_
 
 ## 🎯 Features
 
@@ -40,6 +40,8 @@ Once you have them installed, you just need to run this command:
 Finally, you can change the display size with the argument `-d`. This example scales the images so that the largest dimension is 512 pixels long (but it won't affect the original images):
 
     python annotate.py -i path\to\your\images -x your\xml\folder -t 20 -d 512
+
+Remember that in order to train a shape predictor `dlib` requires the XML files (train and test) to be in the same folder as the images.
 
 #### ⚠ How to annotate eyes and lips
 
