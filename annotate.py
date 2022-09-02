@@ -393,6 +393,8 @@ if __name__ == "__main__":
                     current_part_points_x = []
                     current_part_points_y = []
 
+                # TODO: Add a new option: no fitting and no polyline (nothing at all)
+                #   this would be useful for some parts like mouth or nostrils
                 if k == ord("m"):  # change annotation mode (drawing or clicking lines)
                     draw_mode = not draw_mode
                 if k == ord("f"):  # activate/deactivate curve fitting
