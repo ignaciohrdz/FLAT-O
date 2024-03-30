@@ -77,10 +77,11 @@ Let's suppose you are annotating the left eye:
 - `<z>`/`<x>`: Previous/next face part
 - `<a>`/`<s>`: Previous/next face
 - `<space>`: If you press it after clicking some points, it will generate the corresponding keypoints for the current face part. Every time you press `<space>` the program will jump onto the next part.
-- `<f>`: Set curve fitting on/off.
+- `<f>`: Set curve fitting on/off. In case you use curve fitting and get `RankWarning: Polyfit may be poorly conditioned`, you are probably using too few points (try always to use at least 3).
 - `<m>`: Change annotation mode between:
     - Curve fitting: fit a polynomial regression model to the set of points you clicked for the current face part.
     - Polyline (i.e. generating equidistant points following the path created by the points you clicked).
+    - Point: the points you select will be the ones used as annotations (i.e. no postprocessing).
 - `<u>`: Undo annotation of the current face part
 - `<r>`: Reset the entire face (only applies to the face you are currently annotating)
 - `<q>`: Quit. Use this command to exit the program and save the annotations. If you just close the window, the annotations won't be saved.
