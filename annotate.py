@@ -1,11 +1,10 @@
-# FLATO: Facial Landmark Annotation Tool with OpenCV
+# FLAT-O: Facial Landmark Annotation Tool with OpenCV
 # Author: Ignacio Hernández Montilla
 # https://github.com/ignaciohrdz
 
 import os
 import argparse
 import random
-random.seed(420)
 
 import cv2
 import numpy as np
@@ -14,6 +13,7 @@ from scipy.interpolate import interp1d
 
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
+random.seed(420)
 
 
 face_parts = {'jaw_line': [1, 17],  # 0
@@ -45,14 +45,21 @@ current_part_points_y = []
 hold_click = False
 
 # Input style (freehand/polyline) and curve fitting (on/off)
-draw_mode = False
-fit_curve = False
+# Draw mode: 0=freehand, 1=polyline, 2=point
+draw_modes = {
+    0: 'freehand',
+    1: 'polyline',
+    2: 'point'
+}
+current_draw_mode = 1
+fit_curve = True
+text_color = (0, 255, 255)
 
 
-def smart_resize(img, new_size=512):
-    ratio = new_size / max(img.shape[:2])
-    img = cv2.resize(img, None, fx=ratio, fy=ratio)
-    return img, ratio
+def smart_resize(x, new_size=512):
+    r = new_size / max(x.shape[:2])
+    x = cv2.resize(x, None, fx=r, fy=r)
+    return x, r
 
 
 def change_face_part(diff):
@@ -84,8 +91,17 @@ def change_face(diff):
     current_part = 0
 
 
+def change_draw_mode(diff):
+    global current_draw_mode, draw_modes
+    if current_draw_mode + diff == len(draw_modes.keys()):
+        current_draw_mode = 0
+    else:
+        current_draw_mode += diff
+
+
 def process_selected_points():
     global current_part_points_x, current_part_points_y, current_annotations, current_face_id
+    global current_draw_mode
     global face_part_keys, current_part, fit_curve
 
     part_ref = face_parts[face_part_keys[current_part]]
@@ -110,16 +126,19 @@ def process_selected_points():
     else:
         y_arr = np.array(current_part_points_y)
 
-    # Computing total line distance
-    diff_x = np.ediff1d(x_arr, to_begin=0)
-    diff_y = np.ediff1d(y_arr, to_begin=0)
-    distance = np.cumsum(np.sqrt(diff_x ** 2 + diff_y ** 2))
-    distance = distance / distance[-1]
+    if current_draw_mode < 2:
+        # Computing total line distance
+        diff_x = np.ediff1d(x_arr, to_begin=0)
+        diff_y = np.ediff1d(y_arr, to_begin=0)
+        distance = np.cumsum(np.sqrt(diff_x ** 2 + diff_y ** 2))
+        distance = distance / distance[-1]
 
-    # Obtaining the equidistant points
-    fx, fy = interp1d(distance, x_arr), interp1d(distance, y_arr)
-    alpha = np.linspace(0, 1, steps)
-    x_regular, y_regular = fx(alpha), fy(alpha)
+        # Obtaining the equidistant points
+        fx, fy = interp1d(distance, x_arr), interp1d(distance, y_arr)
+        alpha = np.linspace(0, 1, steps)
+        x_regular, y_regular = fx(alpha), fy(alpha)
+    else:
+        x_regular, y_regular = x_arr, y_arr
 
     # Adding the points
     for i, x_i in enumerate(x_regular.tolist()):
@@ -135,7 +154,7 @@ def process_selected_points():
 
 def render_image(input_image, font=cv2.FONT_HERSHEY_SIMPLEX):
     global face_part_keys, current_part, current_annotations, current_face, current_face_id
-    global draw_mode, fit_curve
+    global current_draw_mode, fit_curve
 
     # Adding a black area to the right side or the bottom of the image to show some info
     h, w = input_image.shape[:2]
@@ -145,12 +164,12 @@ def render_image(input_image, font=cv2.FONT_HERSHEY_SIMPLEX):
     y = int(0.05 * h)
 
     # Showing the current settings
-    m = "Freehand" if draw_mode else "Polyline"
+    m = draw_modes[current_draw_mode]
     f = "ON" if fit_curve else "OFF"
-    cv2.putText(input_image, "Face: " + str(current_face_id), (x, y), font, 0.75, (0, 255, 255), 2)
-    cv2.putText(input_image, "Part: " + face_part_keys[current_part], (x, y+30), font, 0.75, (0, 255, 255), 2)
-    cv2.putText(input_image, "Mode: " + m, (x, y+60), font, 0.75, (0, 255, 255), 2)
-    cv2.putText(input_image, "Fit curve: " + f, (x, y+90), font, 0.75, (0, 255, 255), 2)
+    cv2.putText(input_image, "Face: " + str(current_face_id), (x, y), font, 0.75, text_color, 2)
+    cv2.putText(input_image, "Part: " + face_part_keys[current_part], (x, y+30), font, 0.75, text_color, 2)
+    cv2.putText(input_image, "Mode (m): " + m, (x, y+60), font, 0.75, text_color, 2)
+    cv2.putText(input_image, "Fit curve (f): " + f, (x, y+90), font, 0.75, text_color, 2)
 
     # Drawing each part
     for k, points in current_annotations[current_face_id].items():
@@ -177,25 +196,24 @@ def render_image(input_image, font=cv2.FONT_HERSHEY_SIMPLEX):
 
 def mouse_click(event, x, y, flags, param):
     global current_part_points_x, current_part_points_y
-    global show_img, hold_click, draw_mode
+    global show_img, hold_click, current_draw_mode
 
     x = min(max(x, 0), param[1])
     y = min(max(y, 0), param[0])
 
     if event == cv2.EVENT_LBUTTONDOWN:
-        if draw_mode:
+        if current_draw_mode == 0:
             hold_click = True
         current_part_points_x.append(x)
         current_part_points_y.append(y)
-    elif event == cv2.EVENT_LBUTTONUP and draw_mode:
+    elif event == cv2.EVENT_LBUTTONUP and current_draw_mode == 0:
         hold_click = False
-
         process_selected_points()
         if check_face_is_complete():
             get_face_bbox_from_points()
         change_face_part(1)
 
-    elif hold_click and draw_mode:
+    elif hold_click and current_draw_mode == 0:
         current_part_points_x.append(x)
         current_part_points_y.append(y)
     else:
@@ -254,11 +272,11 @@ def check_image_is_annotated(fname):
     return check_image
 
 
-def update_xml(split_name='training'):
+def update_xml(split='training'):
     global xml_trees, current_face, current_annotations
     global current_image, current_image_size, ratio
 
-    images_tag = xml_trees[split_name].getroot().find("./images")
+    images_tag = xml_trees[split].getroot().find("./images")
 
     new_image_tag = ET.SubElement(images_tag, "image")
     new_image_tag.set("file", current_image)
@@ -288,14 +306,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--img-path', type=str, help="Path to the image folder")
     parser.add_argument('-x', '--xml-path', type=str, help="Path to the folder where XMLs are saved")
-    parser.add_argument('-d', '--display-size', type=int, default=896, help="Display size (largest image size)")
+    parser.add_argument('-d', '--display-size', type=int, default=640, help="Display size (largest image size)")
     parser.add_argument('-t', '--test-pct', type=int, default=10, help="Percentage of images for the test set (0-100)")
     parser.add_argument('--no-splits', action='store_true', help="Do not make train/test splits and make one single XML")
     args = parser.parse_args()
 
     # This is for debugging on my machine. Comment these two lines before running on yours
-    # args.img_path = "D:/ML Projects/Datasets/Faces_dataset"
-    # args.xml_path = "data"
+    # args.img_path = "/home/ignaciohmon/projects/datasets/Faces_dataset/images"
+    # args.xml_path = "/home/ignaciohmon/projects/datasets/Faces_dataset/xml"
     # args.no_splits = True
 
     # Checking the XML paths
@@ -314,6 +332,9 @@ if __name__ == "__main__":
     elif os.path.isfile(args.xml_path) and args.no_splits:
         path_xml = {'training': args.xml_path}
         args.xml_path = os.path.dirname(args.xml_path)
+    else:
+        print("ERROR: Could not read the XML path")
+        exit()
 
     # Creating/reading the XMl file/s
     xml_trees = {}
@@ -328,10 +349,11 @@ if __name__ == "__main__":
             xml_trees[split_name] = ET.parse(xml_name)
 
     # Splitting the data into training/validation and saving the split data in a CSV file
-    # If the file already exists, we don't have to create the splits again
     if os.path.isfile(os.path.join(args.xml_path, "dataset_info.csv")):
+        # If the file already exists, we don't have to create the splits again
         dataset_info = pd.read_csv(os.path.join(args.xml_path, "dataset_info.csv"))
     else:
+        # If not, we will split the data randomly and save the split info
         images = sorted(os.listdir(args.img_path))
         dataset_info = pd.DataFrame({'image': images})
         dataset_info['split'] = 'training'
@@ -346,21 +368,24 @@ if __name__ == "__main__":
         dataset_info.to_csv(os.path.join(args.xml_path, "dataset_info.csv"), index=False)
     dataset_info = dataset_info.set_index(['image'])
 
-    # Main program
+    ################
+    # Main program #
+    ################
+
     exit_program = False
-    for f in sorted(list(dataset_info.index)):
+    for filename in sorted(list(dataset_info.index)):
 
         # Check that it has not been already included in the XML
         # This is useful when we split annotation into several runs
-        if not check_image_is_annotated(f):
+        if not check_image_is_annotated(filename):
 
             # Load the image
-            img = cv2.imread(os.path.join(args.img_path, f))
+            img = cv2.imread(os.path.join(args.img_path, filename))
             current_image_size = list(img.shape[:2])
             img, ratio = smart_resize(img, new_size=args.display_size)
             current_show_size = list(img.shape[:2])
-            current_image = f
-            image_split = dataset_info.loc[f, 'split']
+            current_image = filename
+            image_split = dataset_info.loc[filename, 'split']
 
             win_name = 'FLATO - Annotate facial landmarks'
             cv2.namedWindow(win_name)
@@ -393,14 +418,13 @@ if __name__ == "__main__":
                     current_part_points_x = []
                     current_part_points_y = []
 
-                # TODO: Add a new option: no fitting and no polyline (nothing at all)
-                #   this would be useful for some parts like mouth or nostrils
-                if k == ord("m"):  # change annotation mode (drawing or clicking lines)
-                    draw_mode = not draw_mode
+                if k == ord("m"):  # change annotation mode
+                    change_draw_mode(1)
+
                 if k == ord("f"):  # activate/deactivate curve fitting
                     fit_curve = not fit_curve
 
-                if k == ord(" ") and not draw_mode and len(current_part_points_x) > 1:
+                if k == ord(" ") and current_draw_mode > 0 and len(current_part_points_x) > 1:
                     process_selected_points()
                     if check_face_is_complete():
                         get_face_bbox_from_points()
