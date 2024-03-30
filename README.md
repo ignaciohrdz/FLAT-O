@@ -83,7 +83,7 @@ Let's suppose you are annotating the left eye:
     - Polyline (i.e. generating equidistant points following the path created by the points you clicked).
 - `<u>`: Undo annotation of the current face part
 - `<r>`: Reset the entire face (only applies to the face you are currently annotating)
-- `<q>`: Quit
+- `<q>`: Quit. Use this command to exit the program and save the annotations. If you just close the window, the annotations won't be saved.
 
 ## Useful links
 
