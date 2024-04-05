@@ -8,11 +8,18 @@ _(Photo by Thgusstavo Santana from [Pexels](https://www.pexels.com/photo/man-wit
 
 - Simple OpenCV GUI for **68-keypoint** facial landmark annotation.
 - Annotate **more than one face per image**.
-- For each feature (nose, eyes, eyebrows...) mark as many points as you like and the final **keypoints will be calculated automatically so that they are distributed evenly**. This means that you are not limited to a certain number of points per feature. You use as many as you need and the program will extract the correct number of keypoints for that feature.
-    - I have implemented two methods:
-        1. **Fit a curve to your selected points** and then pick _N_ points from that curve (according to the number of points of the current face part). The goal of this was to make softer curves.
-        2. **Pick _N_ equidistant points** along the path defined by the points you selected.
+- Annotation modes:
+  - **Freehand**: Draw the curve for the face part and the landmarks will be interpolated.
+  - **Polyline**: Mark as many points as you like for a face part and the final landmarks will be interpolated.
+  - **Point**: If you don't want any fitting or interpolation at all, you cant just use the points you selected as the final annotations for the face part.
 - Export the annotations in a single XML file, following the [dlib's example XML file](https://github.com/davisking/dlib/blob/master/examples/faces/training_with_face_landmarks.xml).
+
+The goal behind freehand and polyline modes is to make your life easier. For each feature (nose, eyes, eyebrows...) mark as many points as you like and the final **keypoints will be calculated automatically so that they are distributed evenly**. This means that you are not limited to a certain number of points per feature. You use as many as you need and the program will extract the correct number of keypoints for that feature.
+
+I have implemented two interpolation methods:
+
+1. **Pick _N_ equidistant points** along the path defined by the points you selected.
+2. **Fit a curve to your selected points** and then pick _N_ equidistant points along that curve (according to the number of points of the current face part). The goal of this second method is to provide softer curves, but it may not work sometimes.
 
 ### ✏ 68 facial landmark annotation
 
@@ -78,10 +85,7 @@ Let's suppose you are annotating the left eye:
 - `<a>`/`<s>`: Previous/next face
 - `<space>`: If you press it after clicking some points, it will generate the corresponding keypoints for the current face part. Every time you press `<space>` the program will jump onto the next part.
 - `<f>`: Set curve fitting on/off. In case you use curve fitting and get `RankWarning: Polyfit may be poorly conditioned`, you are probably using too few points (try always to use at least 3).
-- `<m>`: Change annotation mode between:
-    - Curve fitting: fit a polynomial regression model to the set of points you clicked for the current face part.
-    - Polyline (i.e. generating equidistant points following the path created by the points you clicked).
-    - Point: the points you select will be the ones used as annotations (i.e. no postprocessing).
+- `<m>`: Change annotation mode between Freehand, Polyline and Point.
 - `<u>`: Undo annotation of the current face part
 - `<r>`: Reset the entire face (only applies to the face you are currently annotating)
 - `<q>`: Quit. Use this command to exit the program and save the annotations. If you just close the window, the annotations won't be saved.

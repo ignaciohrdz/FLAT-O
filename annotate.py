@@ -52,7 +52,7 @@ draw_modes = {
     2: 'point'
 }
 current_draw_mode = 1
-fit_curve = True
+fit_curve = False
 text_color = (0, 255, 255)
 
 
@@ -92,7 +92,7 @@ def change_face(diff):
 
 
 def change_draw_mode(diff):
-    global current_draw_mode, draw_modes
+    global current_draw_mode, draw_modes, fit_curve
     if current_draw_mode + diff == len(draw_modes.keys()):
         current_draw_mode = 0
     else:
@@ -195,17 +195,21 @@ def render_image(input_image, font=cv2.FONT_HERSHEY_SIMPLEX):
 
 
 def mouse_click(event, x, y, flags, param):
-    global current_part_points_x, current_part_points_y
+    global current_part_points_x, current_part_points_y, face_parts, current_part
     global show_img, hold_click, current_draw_mode
 
     x = min(max(x, 0), param[1])
     y = min(max(y, 0), param[0])
 
+    part_ref = face_parts[face_part_keys[current_part]]
+    steps = part_ref[1] - part_ref[0] + 1
     if event == cv2.EVENT_LBUTTONDOWN:
         if current_draw_mode == 0:
             hold_click = True
-        current_part_points_x.append(x)
-        current_part_points_y.append(y)
+        add_point = current_draw_mode < 2 or (current_draw_mode == 2 and len(current_part_points_x) < steps)
+        if add_point:
+            current_part_points_x.append(x)
+            current_part_points_y.append(y)
     elif event == cv2.EVENT_LBUTTONUP and current_draw_mode == 0:
         hold_click = False
         process_selected_points()
@@ -312,8 +316,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # This is for debugging on my machine. Comment these two lines before running on yours
-    # args.img_path = "/home/ignaciohmon/projects/datasets/Faces_dataset/images"
-    # args.xml_path = "/home/ignaciohmon/projects/datasets/Faces_dataset/xml"
+    args.img_path = "/home/ignaciohmon/projects/datasets/Faces_dataset/images"
+    args.xml_path = "/home/ignaciohmon/projects/datasets/Faces_dataset/xml"
     # args.no_splits = True
 
     # Checking the XML paths
