@@ -316,8 +316,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # This is for debugging on my machine. Comment these two lines before running on yours
-    args.img_path = "/home/ignaciohmon/projects/datasets/Faces_dataset/images"
-    args.xml_path = "/home/ignaciohmon/projects/datasets/Faces_dataset/xml"
+    # args.img_path = "/home/ignaciohmon/projects/datasets/Faces_dataset/images"
+    # args.xml_path = "/home/ignaciohmon/projects/datasets/Faces_dataset/xml"
     # args.no_splits = True
 
     # Checking the XML paths
